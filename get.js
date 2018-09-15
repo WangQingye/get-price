@@ -43,7 +43,6 @@ function getInfo2() {
     setTimeout(getInfo2, 1800000);
 }
 
-getInfo2();
 
 function getInfo() {
     request.post({
@@ -72,6 +71,8 @@ function getInfo() {
     })
 }
 
+getInfo2();
+getInfo();
 function sendMsg(flag) {
     var text;
     if (!flag) {
