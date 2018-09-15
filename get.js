@@ -10,9 +10,8 @@ var time = '';
 /* ---------------------------------交易所账户----------------------- */
 var url1 = 'https://api.omniexplorer.info/v1/address/addr';
 var addr1 = '1KYiKJEfdJtap9QX2v9BXJMpz2SfU4pgZw';
-/* 每半小时记一次 */
-var nowAccountNum = 0;
-
+/* 用来记录24小时内的价格 */
+var accountArr = [];
 function getInfo2() {
     request.post({
         url: url1,
@@ -21,26 +20,38 @@ function getInfo2() {
         }
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            let tempNum = JSON.parse(body).balance[0].value.slice(0,8);
-            if (!nowAccountNum) {
-                nowAccountNum = tempNum;
-            } else {
-                /* 如果30分钟的价格大于20% */
-                let ratio = (tempNum - nowAccountNum) / nowAccountNum;
-                if ( Math.abs(ratio) > 0.2) {
+            try {
+                let tempNum = JSON.parse(body).balance[0].value.slice(0,8);
+                /* 5分钟一存，288是一天 */
+                if (accountArr.length < 48) {
+                    accountArr.push(tempNum);
+                } else {
+                    /* 替换一个新的 */
+                    accountArr.splice(0,1);
+                    accountArr.push(tempNum);
+                }
+                let maxNum = Math.max(...accountArr);
+                let minNum = Math.min(...accountArr);
+                let p1 = (tempNum - minNum) / minNum;
+                let p2 = (tempNum - maxNum) / maxNum;
+                let ratio = Math.abs(p1) > Math.abs(p2) ? p1 : p2;
+                if (Math.abs(ratio) > 0.2) {
+                    // 从新计算
+                    accountArr = [];
                     if (ratio > 0) {
                         sendMsg(1);
                     } else {
                         sendMsg(2);
                     }
                 }
+            } catch (error) {
+                console.log(error);
             }
-
         } else {
             console.log('getinfo2 no data');
         }
     })
-    setTimeout(getInfo2, 1800000);
+    setTimeout(getInfo2, 300000);
 }
 
 
@@ -78,7 +89,7 @@ function sendMsg(flag) {
     if (!flag) {
         text = encodeURI(`【乾坤科技】${time} 从 ${sender} 转了 ${amount} UDT 到 ${refer}`);
     } else if (flag == 1) {
-        text = encodeURI(`【乾坤科技】交易所30分钟内增加了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+        text = encodeURI(`【乾坤科技】交易所24s内增加了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
     } else {
         text = encodeURI(`【乾坤科技】交易所30分钟内减少了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
     }
