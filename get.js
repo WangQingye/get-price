@@ -7,6 +7,44 @@ var sender = ''; // 转出者
 var refer = ''; // 接受者
 var time = '';
 
+/* ---------------------------------交易所账户----------------------- */
+var url1 = 'https://api.omniexplorer.info/v1/address/addr';
+var addr1 = '1KYiKJEfdJtap9QX2v9BXJMpz2SfU4pgZw';
+/* 每半小时记一次 */
+var nowAccountNum = 0;
+
+function getInfo2() {
+    request.post({
+        url: url1,
+        form: {
+            addr: addr1
+        }
+    }, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            let tempNum = JSON.parse(body).balance[0].value.slice(0,8);
+            if (!nowAccountNum) {
+                nowAccountNum = tempNum;
+            } else {
+                /* 如果30分钟的价格大于20% */
+                let ratio = (tempNum - nowAccountNum) / nowAccountNum;
+                if ( Math.abs(ratio) > 0.2) {
+                    if (ratio > 0) {
+                        sendMsg(1);
+                    } else {
+                        sendMsg(2);
+                    }
+                }
+            }
+
+        } else {
+            console.log('getinfo2 no data');
+        }
+    })
+    setTimeout(getInfo2, 1800000);
+}
+
+getInfo2();
+
 function getInfo() {
     request.post({
         url: url,
@@ -24,7 +62,7 @@ function getInfo() {
                 sender = addrToName(lastTrans.sendingaddress);
                 refer = addrToName(lastTrans.referenceaddress);
                 time = formatDate(lastTrans.blocktime * 1000);
-                sendMsg();
+                sendMsg(0);
                 lastBlock = block;
             } else {
                 console.log('no new trans');
@@ -34,8 +72,15 @@ function getInfo() {
     })
 }
 
-function sendMsg() {
-    var text = encodeURI(`【乾坤科技】${time} 从 ${sender} 转了 ${amount} UDT 到 ${refer}`);
+function sendMsg(flag) {
+    var text;
+    if (!flag) {
+        text = encodeURI(`【乾坤科技】${time} 从 ${sender} 转了 ${amount} UDT 到 ${refer}`);
+    } else if (flag == 1) {
+        text = encodeURI(`【乾坤科技】交易所30分钟内增加了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+    } else {
+        text = encodeURI(`【乾坤科技】交易所30分钟内减少了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+    }
     request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=13648002084&c=' + text, function (error, response, body) {});
     request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=18615747976&c=' + text, function (error, response, body) {});
 };
@@ -67,4 +112,4 @@ function formatDate(date) {
     var second = date.getSeconds();
     return year + "年" + month + "月" + date1 + "日" + hour + "时" + minutes + "分" + second + "秒";
 }
-getInfo();
+// getInfo();
