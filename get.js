@@ -12,6 +12,7 @@ var url1 = 'https://api.omniexplorer.info/v1/address/addr';
 var addr1 = '1KYiKJEfdJtap9QX2v9BXJMpz2SfU4pgZw';
 /* 用来记录24小时内的价格 */
 var accountArr = [];
+
 function getInfo2() {
     request.post({
         url: url1,
@@ -21,13 +22,13 @@ function getInfo2() {
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             try {
-                let tempNum = JSON.parse(body).balance[0].value.slice(0,8);
-                /* 5分钟一存，288是一天 */
+                let tempNum = JSON.parse(body).balance[0].value.slice(0, 8);
+                /* 5分钟一存，48是四小时 */
                 if (accountArr.length < 48) {
                     accountArr.push(tempNum);
                 } else {
                     /* 替换一个新的 */
-                    accountArr.splice(0,1);
+                    accountArr.splice(0, 1);
                     accountArr.push(tempNum);
                 }
                 let maxNum = Math.max(...accountArr);
@@ -53,7 +54,6 @@ function getInfo2() {
     })
     setTimeout(getInfo2, 300000);
 }
-
 
 function getInfo() {
     request.post({
@@ -82,19 +82,30 @@ function getInfo() {
     })
 }
 
-getInfo2();
-getInfo();
 function sendMsg(flag) {
     var text;
-    if (!flag) {
-        text = encodeURI(`【乾坤科技】${time} 从 ${sender} 转了 ${amount} UDT 到 ${refer}`);
-    } else if (flag == 1) {
-        text = encodeURI(`【乾坤科技】交易所24s内增加了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
-    } else {
-        text = encodeURI(`【乾坤科技】交易所30分钟内减少了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+    switch (flag) {
+        case 0:
+            text = encodeURI(`【乾坤科技】${time} 从 ${sender} 转了 ${amount} UDT 到 ${refer}`);
+            break;
+        case 1:
+            text = encodeURI(`【乾坤科技】交易所4h内增加了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+            break;
+        case 2:
+            text = encodeURI(`【乾坤科技】交易所4h内减少了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+            break;
+        case 3:
+            text = encodeURI(`【乾坤科技】脚本哥：${newMsg} 从 ${0} 转了 ${0} UDT 到 ${0}`);
+            break;
+        default:
+            break;
     }
     request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=13648002084&c=' + text, function (error, response, body) {});
-    request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=18615747976&c=' + text, function (error, response, body) {});
+    request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=18615747976&c=' + text, function (error, response, body) {
+        if (error) {
+            sendMsg(flag);
+        }
+    });
 };
 
 function addrToName(addr) {
@@ -124,4 +135,30 @@ function formatDate(date) {
     var second = date.getSeconds();
     return year + "年" + month + "月" + date1 + "日" + hour + "时" + minutes + "分" + second + "秒";
 }
-// getInfo();
+
+/* ---------------------------------脚本哥----------------------- */
+const cheerio = require('cheerio');
+// 脚本哥最新的一条，每次去对比，不一样了就发送短信
+var newMsg = '';
+
+function getInfo3() {
+    request('https://www.tradingview.com/u/qmty/', (err, res, body) => {
+        console.log(err);
+        if (err) {
+            getInfo3();
+            return;
+        }
+        var $ = cheerio.load(body.toString());
+        let temp = $('.tv-widget-idea__title-name')[0].children[0].data;
+        if (temp !== newMsg) {
+            newMsg = temp;
+            sendMsg(3);
+            console.log('new');
+        }
+        setTimeout(getInfo3, 300000);
+    });
+}
+
+getInfo();
+getInfo2();
+getInfo3();
