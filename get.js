@@ -1,4 +1,5 @@
 var request = require('request');
+var fs = require('fs');
 var url = 'https://api.omniexplorer.info/v1/transaction/address/1';
 var addr = '1NTMakcgVwQpMdGxRQnFKyb3G1FAJysSfz';
 var lastBlock = 5399051;
@@ -23,6 +24,8 @@ function getInfo2() {
         if (!error && response.statusCode == 200) {
             try {
                 let tempNum = JSON.parse(body).balance[0].value.slice(0, 8);
+                let time = formatDate(new Date().getTime());
+                fs.appendFileSync('./exchangehouse.txt', `${time}:${tempNum}` + "\r\n");
                 /* 5分钟一存，48是四小时 */
                 if (accountArr.length < 48) {
                     accountArr.push(tempNum);
@@ -37,12 +40,12 @@ function getInfo2() {
                 let p2 = (tempNum - maxNum) / maxNum;
                 let ratio = Math.abs(p1) > Math.abs(p2) ? p1 : p2;
                 if (Math.abs(ratio) > 0.2) {
-                    // 从新计算
-                    accountArr = [];
+                    // 从新计算，并保留当前值
+                    accountArr = [tempNum];
                     if (ratio > 0) {
-                        sendMsg(1);
+                        sendMsg(1, Math.abs(ratio));
                     } else {
-                        sendMsg(2);
+                        sendMsg(2, Math.abs(ratio));
                     }
                 }
             } catch (error) {
@@ -78,21 +81,21 @@ function getInfo() {
                 console.log('no new trans');
             }
         }
-        setTimeout(getInfo, 5000);
+        setTimeout(getInfo, 50000);
     })
 }
 
-function sendMsg(flag) {
+function sendMsg(flag, ratio) {
     var text;
     switch (flag) {
         case 0:
             text = encodeURI(`【乾坤科技】${time} 从 ${sender} 转了 ${amount} UDT 到 ${refer}`);
             break;
         case 1:
-            text = encodeURI(`【乾坤科技】交易所4h内增加了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+            text = encodeURI(`【乾坤科技】交易所4h内增加了${ratio} 从 ${0} 转了 ${0} UDT 到 ${0}`);
             break;
         case 2:
-            text = encodeURI(`【乾坤科技】交易所4h内减少了20% 从 ${0} 转了 ${0} UDT 到 ${0}`);
+            text = encodeURI(`【乾坤科技】交易所4h内减少了${ratio} 从 ${0} 转了 ${0} UDT 到 ${0}`);
             break;
         case 3:
             text = encodeURI(`【乾坤科技】脚本哥：${newMsg} 从 ${0} 转了 ${0} UDT 到 ${0}`);
