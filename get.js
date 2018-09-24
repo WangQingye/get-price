@@ -81,8 +81,8 @@ function getInfo() {
                 console.log('no new trans');
             }
         }
-        setTimeout(getInfo, 50000);
     })
+    setTimeout(getInfo, 50000);
 }
 
 function sendMsg(flag, ratio) {
@@ -103,11 +103,15 @@ function sendMsg(flag, ratio) {
         default:
             break;
     }
-    request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=13648002084&c=' + text, function (error, response, body) {});
+    request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=13648002084&c=' + text, function (error, response, body) {
+        console.log('msgerr:', error);
+        console.log('msgres:', response);
+        console.log('msgbody:', body);
+    });
     request.get('http://api.smsbao.com/sms?u=z926665&p=9e141bad8128e8972b768fe4a6dbe8a3&m=18615747976&c=' + text, function (error, response, body) {
-        if (error) {
-            sendMsg(flag);
-        }
+        // if (error) {
+        //     sendMsg(flag);
+        // }
     });
 };
 
@@ -146,13 +150,14 @@ var newMsg = '';
 
 function getInfo3() {
     request('https://www.tradingview.com/u/qmty/', (err, res, body) => {
-        console.log(err);
+        console.log('jiaobenerr:', err);
         if (err) {
             getInfo3();
             return;
         }
         var $ = cheerio.load(body.toString());
         let temp = $('.tv-widget-idea__title-name')[0].children[0].data;
+        console.log(temp);
         if (temp !== newMsg) {
             newMsg = temp;
             sendMsg(3);
