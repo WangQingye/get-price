@@ -2,7 +2,7 @@ var request = require('request');
 var fs = require('fs');
 var url = 'https://api.omniexplorer.info/v1/transaction/address/1';
 var addr = '1NTMakcgVwQpMdGxRQnFKyb3G1FAJysSfz';
-var lastBlock = 5399051;
+var lastBlock = 0;
 var amount = 0;
 var sender = ''; // 转出者
 var refer = ''; // 接受者
@@ -23,7 +23,8 @@ function getInfo2() {
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             try {
-                let tempNum = JSON.parse(body).balance[0].value.slice(0, 8);
+                let value = JSON.parse(body).balance[0].value;
+                let tempNum =value.substring(0, value.length - 8);
                 let time = formatDate(new Date().getTime());
                 fs.appendFileSync('./exchangehouse.txt', `${time}:${tempNum}` + "\r\n");
                 /* 5分钟一存，48是四小时 */
@@ -75,7 +76,7 @@ function getInfo() {
                 sender = addrToName(lastTrans.sendingaddress);
                 refer = addrToName(lastTrans.referenceaddress);
                 time = formatDate(lastTrans.blocktime * 1000);
-                sendMsg(0);
+                if(lastBlock) sendMsg(0);
                 lastBlock = block;
             } else {
                 console.log('no new trans');
@@ -157,8 +158,8 @@ function getInfo3() {
             let temp = $('.tv-widget-idea__title-name')[0].children[0].data;
             console.log(temp);
             if (temp !== newMsg) {
+                if(newMsg) sendMsg(3);
                 newMsg = temp;
-                sendMsg(3);
                 console.log('new');
             }
         }
