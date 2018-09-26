@@ -150,20 +150,19 @@ var newMsg = '';
 
 function getInfo3() {
     request('https://www.tradingview.com/u/qmty/', (err, res, body) => {
-        console.log('jiaobenerr:', err);
         if (err) {
-            getInfo3();
-            return;
+            console.log('jiaobenerr:', err);
+        } else {
+            var $ = cheerio.load(body.toString());
+            let temp = $('.tv-widget-idea__title-name')[0].children[0].data;
+            console.log(temp);
+            if (temp !== newMsg) {
+                newMsg = temp;
+                // sendMsg(3);
+                console.log('new');
+            }
         }
-        var $ = cheerio.load(body.toString());
-        let temp = $('.tv-widget-idea__title-name')[0].children[0].data;
-        console.log(temp);
-        if (temp !== newMsg) {
-            newMsg = temp;
-            sendMsg(3);
-            console.log('new');
-        }
-        setTimeout(getInfo3, 300000);
+        setTimeout(getInfo3, 30000);
     });
 }
 
