@@ -158,7 +158,7 @@ function getInfo3() {
             console.log(temp);
             if (temp !== newMsg) {
                 newMsg = temp;
-                // sendMsg(3);
+                sendMsg(3);
                 console.log('new');
             }
         }
