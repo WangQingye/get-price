@@ -24,7 +24,7 @@ function getInfo2() {
         if (!error && response.statusCode == 200) {
             try {
                 let value = JSON.parse(body).balance[0].value;
-                let tempNum =value.substring(0, value.length - 8);
+                let tempNum = value.substring(0, value.length - 8);
                 let time = formatDate(new Date().getTime());
                 fs.appendFileSync('./exchangehouse.txt', `${time}:${tempNum}` + "\r\n");
                 /* 5分钟一存，48是四小时 */
@@ -76,8 +76,13 @@ function getInfo() {
                 sender = addrToName(lastTrans.sendingaddress);
                 refer = addrToName(lastTrans.referenceaddress);
                 time = formatDate(lastTrans.blocktime * 1000);
-                if(lastBlock) sendMsg(0);
-                lastBlock = block;
+                /* 第一次进来不发短信 */
+                if (lastBlock) {
+                    lastBlock = block;
+                    sendMsg(0);
+                } else {
+                    lastBlock = block;
+                }
             } else {
                 console.log('no new trans');
             }
@@ -158,8 +163,14 @@ function getInfo3() {
             let temp = $('.tv-widget-idea__title-name')[0].children[0].data;
             console.log(temp);
             if (temp !== newMsg) {
-                if(newMsg) sendMsg(3);
-                newMsg = temp;
+                /* 第一次进来只赋值，不发短信 */
+                if (newMsg) {
+                    newMsg = temp;
+                    sendMsg(3);
+                } else {
+                    newMsg = temp;
+                }
+
                 console.log('new');
             }
         }
