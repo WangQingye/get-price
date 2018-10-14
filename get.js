@@ -26,20 +26,20 @@ function getInfo2() {
                 let value = JSON.parse(body).balance[0].value;
                 let tempNum = value.substring(0, value.length - 8);
                 let time = formatDate(new Date().getTime());
-                fs.appendFileSync('./exchangehouse.txt', `${time}:${tempNum}` + "\r\n");
                 /* 5分钟一存，48是四小时 */
                 if (accountArr.length < 48) {
-                    accountArr.push(tempNum);
+                    if( accountArr[accountArr.length - 1] !== tempNum ) accountArr.push(tempNum);
                 } else {
                     /* 替换一个新的 */
                     accountArr.splice(0, 1);
-                    accountArr.push(tempNum);
+                    if( accountArr[accountArr.length - 1] !== tempNum ) accountArr.push(tempNum);
                 }
                 let maxNum = Math.max(...accountArr);
                 let minNum = Math.min(...accountArr);
                 let p1 = (tempNum - minNum) / minNum;
                 let p2 = (tempNum - maxNum) / maxNum;
                 let ratio = Math.abs(p1) > Math.abs(p2) ? p1 : p2;
+                fs.appendFileSync('./exchangehouse.txt', `${time}:${tempNum} ratio:${ratio}` + "\r\n");
                 if (Math.abs(ratio) > 0.2) {
                     // 从新计算，并保留当前值
                     accountArr = [tempNum];
