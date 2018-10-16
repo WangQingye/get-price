@@ -28,11 +28,11 @@ function getInfo2() {
                 let time = formatDate(new Date().getTime());
                 /* 5分钟一存，48是四小时 */
                 if (accountArr.length < 48) {
-                    if( accountArr[accountArr.length - 1] !== tempNum ) accountArr.push(tempNum);
+                    if (accountArr[accountArr.length - 1] !== tempNum) accountArr.push(tempNum);
                 } else {
                     /* 替换一个新的 */
                     accountArr.splice(0, 1);
-                    if( accountArr[accountArr.length - 1] !== tempNum ) accountArr.push(tempNum);
+                    if (accountArr[accountArr.length - 1] !== tempNum) accountArr.push(tempNum);
                 }
                 let maxNum = Math.max(...accountArr);
                 let minNum = Math.min(...accountArr);
@@ -164,18 +164,21 @@ function getInfo3() {
             console.log('jiaobenerr:', err);
         } else {
             var $ = cheerio.load(body.toString());
-            let temp = $('.tv-widget-idea__title-name')[0].children[0].data;
-            console.log(temp);
-            if (temp !== newMsg) {
-                /* 第一次进来只赋值，不发短信 */
-                if (newMsg) {
-                    newMsg = temp;
-                    sendMsg(3);
-                } else {
-                    newMsg = temp;
+            try {
+                let temp = $('.tv-widget-idea__title')[0].children[0].data;
+                console.log(temp);
+                if (temp !== newMsg) {
+                    /* 第一次进来只赋值，不发短信 */
+                    if (newMsg) {
+                        newMsg = temp;
+                        sendMsg(3);
+                    } else {
+                        newMsg = temp;
+                    }
+                    console.log(temp);
                 }
-
-                console.log('new');
+            } catch (error) {
+                fs.appendFileSync('./3.txt', error + "\r\n");
             }
         }
         setTimeout(getInfo3, 30000);
