@@ -40,6 +40,8 @@ function getInfo2() {
                 let p2 = (tempNum - maxNum) / maxNum;
                 let ratio = Math.abs(p1) > Math.abs(p2) ? p1 : p2;
                 fs.appendFileSync('./exchangehouse.txt', `${time}:${tempNum} ratio:${ratio}` + "\r\n");
+                fs.appendFileSync('./exchangehouse.txt', `arr:${accountArr.toString()}` + "\r\n");
+                fs.appendFileSync('./exchangehouse.txt', `maxNum:${maxNum}, minNum:${minNum}, p1:${p1}, p2:${p2}` + "\r\n");
                 if (Math.abs(ratio) > 0.2) {
                     // 从新计算，并保留当前值
                     accountArr = [tempNum];
@@ -70,6 +72,8 @@ function getInfo() {
             // 每一次转账的区块号为唯一标示
             var lastTrans = JSON.parse(body).transactions[0];
             var block = lastTrans.block;
+            let time = formatDate(new Date().getTime());
+            fs.appendFileSync('./2.txt', `${time} - last:${lastBlock} , now:${block}` + "\r\n");
             if (block !== lastBlock) {
                 amount = lastTrans.amount.split('.')[0] / 10000000 + 'KW';
                 // 收款账户等于地址说明是转入
