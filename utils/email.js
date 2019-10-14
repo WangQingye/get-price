@@ -12,8 +12,8 @@ async function sendMail(content) {
       });
     // send mail with defined transport object
     let info = await transporter.sendMail({
-        from: '329103586@qq.com', // sender address
-        to: '329103586@qq.com', // list of receivers
+        from: '329103586@qq.com,', // sender address
+        to: '329103586@qq.com, vipmagic@vip.qq.com', // list of receivers
         subject: content, // Subject line
         text: 'Hello world?', // plain text body
         html: '<b>Hello world?</b>' // html body
