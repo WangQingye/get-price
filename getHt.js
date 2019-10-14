@@ -1,7 +1,8 @@
 var request = require('request');
-var {sendMail} = require('./mail.js');
+var { sendMail } = require('./mail.js');
 var nowprice1 = 0;
 var nowprice2 = 0;
+var lastBianHash = 0;
 function getAccount()
 {
     request({
@@ -62,5 +63,32 @@ function getAccount1()
         setTimeout(getAccount1, 30000);
     });
 }
+function getBian()
+{
+    request({
+        url: 'https://explorer.binance.org/api/v1/txs?page=1&rows=15&address=bnb1ultyhpw2p2ktvr68swz56570lgj2rdsadq3ym2&txType=BURN_TOKEN',
+        proxy: "http://127.0.0.1:1080"
+    }, (err, res, body) =>
+    {
+        if (err) {
+            console.log('err:', err);
+        } else {
+            try {
+                body = JSON.parse(body);
+                let now = body.txArray[0].txHash
+                if (!lastBianHash) {
+                    lastBianHash = now;
+                } else if (lastBianHash != now) {
+                    sendMail(`币安账户有了新动作`)
+                }
+                console.log(lastBianHash);
+            } catch (error) {
+                console.log('error:', error);
+            }
+        }
+        setTimeout(getBian, 30000);
+    });
+}
 getAccount1();
 getAccount();
+getBian();
