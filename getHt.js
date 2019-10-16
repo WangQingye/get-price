@@ -24,6 +24,7 @@ function getAccount()
                     if (Math.abs(gap) > 1000000) {
                         let text = gap > 0 ? '转入' : '转出';
                         sendMail(`中转账户${text}了${Math.abs(gap)}的HT`)
+                        nowprice1 = now;
                     }
                 }
             } catch (error) {
@@ -54,6 +55,7 @@ function getAccount1()
                     if (Math.abs(gap) > 1000000) {
                         let text = gap > 0 ? '转入' : '转出';
                         sendMail(`重点账户${text}了${Math.abs(gap)}的HT`)
+                        nowprice2 = now;
                     }
                 }
             } catch (error) {
@@ -89,6 +91,6 @@ function getBian()
         setTimeout(getBian, 30000);
     });
 }
-getAccount1();
-getAccount();
+// getAccount1();
+// getAccount();
 getBian();

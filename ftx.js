@@ -3,7 +3,8 @@ var {
     sendMail
 } = require('./utils/email');
 var timeMinutes = 15;
-var coins = ['LTC', 'BTC', 'ETH', 'BCH', 'EOS', 'BSV', 'ETC']
+var coins = ['LTC', 'BTC', 'ETH', 'BCH', 'EOS', 'BSV', 'ETC'];
+var lastBianHash = 0;
 // {"result": {
 //         "close": 66.84,
 //         "high": 67.21,
@@ -87,10 +88,37 @@ function getPrices() {
         }
     })
 }
+function getBian()
+{
+    request({
+        url: 'https://explorer.binance.org/api/v1/txs?page=1&rows=15&address=bnb1ultyhpw2p2ktvr68swz56570lgj2rdsadq3ym2&txType=BURN_TOKEN',
+        proxy: "http://127.0.0.1:1080"
+    }, (err, res, body) =>
+    {
+        if (err) {
+            console.log('err:', err);
+        } else {
+            try {
+                body = JSON.parse(body);
+                let now = body.txArray[0].txHash
+                if (!lastBianHash) {
+                    lastBianHash = now;
+                } else if (lastBianHash != now) {
+                    sendMail(`币安账户有了新动作`)
+                    lastBianHash = now;
+                }
+                console.log(lastBianHash);
+            } catch (error) {
+                console.log('error:', error);
+            }
+        }
+    });
+}
 setInterval(() => {
     let minute = new Date().getMinutes();
     console.log(minute);
     if (minute % timeMinutes == 0) {
         getPrices();
     }
+    getBian();
 }, 60000);
