@@ -1,0 +1,26 @@
+{
+  "name": "get-price",
+  "version": "1.0.0",
+  "description": "",
+  "main": "get.js",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.2",
+    "nodemailer": "^6.3.1",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WangQingye/get-price.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WangQingye/get-price/issues"
+  },
+  "homepage": "https://github.com/WangQingye/get-price#readme"
+}
