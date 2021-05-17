@@ -15,6 +15,12 @@ var lastBianHash = 0;
 //         "volume": 4287.8404
 //     },
 //     "success": true}
+request.get({
+    url: `https://twitter.com/elonmusk/with_replies`,
+    proxy: 'http://127.0.0.1:1087'
+}, function (err, res, body) {
+    console.log(body.indexOf('speculation'))
+})
 
 function getPrices() {
     let promises = [];
@@ -112,11 +118,11 @@ function getBian() {
         }
     });
 }
-setInterval(() => {
-    let minute = new Date().getMinutes();
-    console.log(minute);
-    if (minute % timeMinutes == 0) {
-        getPrices();
-    }
-    // getBian();
-}, 60000);
+// setInterval(() => {
+//     let minute = new Date().getMinutes();
+//     console.log(minute);
+//     if (minute % timeMinutes == 0) {
+//         getPrices();
+//     }
+//     // getBian();
+// }, 60000);
