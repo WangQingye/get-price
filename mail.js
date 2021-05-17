@@ -11,7 +11,7 @@ async function sendMail(content) {
     });
 
     let info = await transporter.sendMail({
-        from: '"HT账户检测" <329103586@qq.com>', // sender address
+        from: '"老马检测" <329103586@qq.com>', // sender address
         // to: 'vipmagic@vip.qq.com, 329103586@qq.com', // list of receivers
         to: '329103586@qq.com', // list of receivers
         subject: content, // Subject line
